@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 import torch
 import time
+import wandb
 
 
 class EarlyStopping:
@@ -88,6 +89,10 @@ class Trainer(object):
             overall_training_loss = 0.0
             for step, batch in enumerate(progress_bar(self.train_data_loader, parent=pbar)):
                 loss, num_rows, _, _ = self.model(batch, device)
+
+                if step % 10 == 0:
+                    wandb.log({"loss": float(loss.cpu())})
+
                 overall_training_loss += loss.item() * num_rows
 
                 loss.backward()
@@ -111,6 +116,8 @@ class Trainer(object):
                      f1_score(y_true, y_pred, average="micro"),
                      jaccard_score(y_true, y_pred, average="samples")]
 
+            results = {k:v for k, v in zip(["overall_training_loss", "overall_val_loss", "f1_score_macro", "f1_score_micro", "jaccard_score"], stats)}
+            wandb.log(results)
             for stat in stats:
                 str_stats.append(
                     'NA' if stat is None else str(stat) if isinstance(stat, int) else f'{stat:.4f}'
