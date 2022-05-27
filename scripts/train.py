@@ -34,7 +34,7 @@ wandb.login(key="a6da9e40226ee6796df369e63bf8ee32a1171278")
 from time import localtime
 
 cur_time = f"{localtime().tm_mday}.{localtime().tm_mon} - {localtime().tm_hour}:{localtime().tm_min}"
-run = "EN - " + cur_time
+run = "DE - " + cur_time
 
 wandb.init(project=f"SpanEmo-bert", name=run)
 
