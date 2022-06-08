@@ -17,6 +17,9 @@ Options:
     --dev-path=<str>                  file path of the dev set [default: '']
     --train-path=<str>                file path of the train set [default: '']
     --alpha-loss=<float>              weight used to balance the loss [default: 0.2]
+    --wandb=<str>                     wandb configuration for debugging [default: '']
+    --model-path=<str>                path to save checkpoints to [default: '']
+    --run=<str>                       wandb tag for run [default: '']
 """
 
 from learner import Trainer
@@ -29,16 +32,21 @@ import datetime
 import json
 import numpy as np
 import wandb
+import os
 
-wandb.login(key="a6da9e40226ee6796df369e63bf8ee32a1171278")
 from time import localtime
 
-cur_time = f"{localtime().tm_mday}.{localtime().tm_mon} - {localtime().tm_hour}:{localtime().tm_min}"
-run = "DE - " + cur_time
+args = docopt(__doc__)
 
+cur_time = f"{localtime().tm_mday}.{localtime().tm_mon} - {localtime().tm_hour}:{localtime().tm_min}"
+run = args["--run"] + " train - " + cur_time
+
+# wandb integration
+if args["--wandb"] == "debug":
+    os.environ['WANDB_DISABLED'] = 'true'
+wandb.login(key="a6da9e40226ee6796df369e63bf8ee32a1171278")
 wandb.init(project=f"SpanEmo-bert", name=run)
 
-args = docopt(__doc__)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 if str(device) == 'cuda:0':
     print("Currently using GPU: {}".format(device))
@@ -83,7 +91,7 @@ model = SpanEmo(output_dropout=float(args['--output-dropout']),
 #############################################################################
 # Start Training
 #############################################################################
-learn = Trainer(model, train_data_loader, dev_data_loader, filename=filename)
+learn = Trainer(model, train_data_loader, dev_data_loader, filename, args)
 learn.fit(
     num_epochs=int(args['--max-epoch']),
     args=args,
