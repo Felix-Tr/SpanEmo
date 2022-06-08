@@ -23,6 +23,7 @@ import numpy as np
 
 from time import localtime
 import wandb
+import os
 
 args = docopt(__doc__)
 
