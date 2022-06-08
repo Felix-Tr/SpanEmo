@@ -69,7 +69,7 @@ class Trainer(object):
         self.train_data_loader = train_data_loader
         self.val_data_loader = val_data_loader
         self.filename = filename
-        self.early_stop = EarlyStopping(self.filename, model_path=args["--model-path"], patience=10)
+        self.early_stop = EarlyStopping(self.filename, model_path=args["--model-path"], patience=5)
 
     def fit(self, num_epochs, args, device='cuda:0'):
         """
