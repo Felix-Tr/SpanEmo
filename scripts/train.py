@@ -19,7 +19,7 @@ Options:
     --alpha-loss=<float>              weight used to balance the loss [default: 0.2]
     --wandb=<str>                     wandb configuration for debugging [default: '']
     --model-path=<str>                path to save checkpoints to [default: '']
-    --from_pretrained=<str>           path to state file to load from pretrained [default: '']
+    --from-pretrained=<str>           path to state file to load from pretrained [default: '']
     --run=<str>                       wandb tag for run [default: '']
 """
 
