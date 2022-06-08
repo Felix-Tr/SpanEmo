@@ -29,7 +29,7 @@ args = docopt(__doc__)
 
 
 cur_time = f"{localtime().tm_mday}.{localtime().tm_mon} - {localtime().tm_hour}:{localtime().tm_min}"
-run = args["--run"] + " train - " + cur_time
+run = args["--run"] + " test - " + cur_time
 
 # wandb integration
 if args["--wandb"] == "debug":
