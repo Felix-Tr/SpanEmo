@@ -33,22 +33,47 @@ def translate_text(text, target="de"):
 # Translation
 
 # text_a contains information, text_b always None
-for mode in tqdm(["train", "test-gold"]): # ["dev", "test-gold", "train"]
+for mode in tqdm(["dev", "test-gold", "train"]): # ["dev", "test-gold", "train"]
 
-    path = "/home/felix/masterthesis/SpanEmo/data/SemEval2018-Task1-all-data/English/E-c/"
-    filename = path + f"2018-E-c-En-{mode}.txt"
+    path = "/content/drive/MyDrive/temporary/masterthesis_drive/SpanEmoData/E-c/"
+    filename = path + f"GoEmotions-{mode}.txt"
     df = pd.read_csv(filename, sep='\t')
     df_de = copy.deepcopy(df)
+    label_order = ["anger", "anticipation", "disgust", "fear", "joy", "love", "optimism", "pessimism", "sadness", "surprise", "trust"]
+    # anger, disgust, fear, joy, sadness, surprise
 
+    # anger    anticipation     disgust     fear        joy      love         optimism    pessimism                     sadness     surprise    trust"             --> SpanEmo
+    # anger                     disgust     fear        joy                                                             sadness     surprise                       --> GoEmotions Ekmann 6
+    # anger    (excitement)     disgust     fear        joy      love         optimism    (disapproval/disappointment)  sadness     surprise    (approval/caring)  --> GoEmotions 28
+    # anger[8] anticipation[1]  disgust[7]  fear[5]     joy[2]                                                          sadness[6]  surprise[4] trust[3]           --> Labelling
+
+    # plutchnik28 = set(["admiration", "adoration", "aesthetic appreciation", " amusement", "anger", "anxiety", "awe", "awkwardness", "boredom", " calmness", "confusion", "craving",
+    #                     "disgust", "empathic pain", " entrancement", "excitement", "fear", "horror", "interest", "joy", "nostalgia", " relief", "romance", "sadness",
+    #                     "satisfaction", "sexual desire", "surprise"])
+    # SpanEmpo = set(["anger", "anticipation", "disgust", "fear", "joy", "love", "optimism", "pessimism", "sadness", "surprise", "trust"])
+    # GoEmotions28 = set(["admiration", "amusement", "anger", "annoyance", "approval", "caring", "confusion", "curiosity", "desire", "disappointment", "disapproval", "disgust",
+    #                  "embarrassment", "excitement", "fear", "gratitude", "grief", "joy", "love", "nervousness", "optimism", "pride", "realization", "relief", "remorse",
+    #                  "sadness", "surprise", "neutral"])
+    # print("len(GoEmotions28) ", len(GoEmotions28), "len(plutchnik) ", len(plutchnik28), "len(SpanEmpo) ", len(SpanEmpo))
+    # print("Schnittmenge (GoEmotions28 n pluchtnik28): ", len(GoEmotions28.intersection(plutchnik28)), "\n", GoEmotions28.intersection(plutchnik28))
+    # print("Schnittmenge (GoEmotions n SpanEmpo): ", len(SpanEmpo.intersection(GoEmotions28)), "\n", SpanEmpo.intersection(GoEmotions28))
+    # print("Difference (SpanEmo - (GoEmotions n SpanEmo): ", len(SpanEmpo - SpanEmpo.intersection(GoEmotions28)), "\n", SpanEmpo - SpanEmpo.intersection(GoEmotions28))
+
+    df_new = df[[label_order[0]]]
+    for label in label_order[1:]:
+        if label in ['trust', 'anticipation', 'pessimism']:
+            df_new[label] = [0 for _ in range(df.shape[0])]
+        else:
+            df_new[label] = df[label]
 
     ###### Translating using the google api test credits ######
 
-    examples_text_a_de = process_map(translate_text, df["Tweet"].tolist(), max_workers=os.cpu_count())
+    # examples_text_a_de = process_map(translate_text, df["Tweet"].tolist(), max_workers=os.cpu_count())
+    #
+    # for i in range(len(examples_text_a_de)):
+    #     df_de.iloc[i, 1] = examples_text_a_de[i]
 
-    for i in range(len(examples_text_a_de)):
-        df_de.iloc[i, 1] = examples_text_a_de[i]
-
-    df_de.to_csv(path + f"2018-E-c-En-{mode}-DE.txt", sep="\t")
+    df_de.to_csv("new-" + filename, sep="\t", index=False)
 
     ###### Load translated obj #####
 
