@@ -229,4 +229,7 @@ class EvaluateOnTest(object):
             )
         str_stats.append(format_time(time.time() - start_time))
         headers = ['F1-Macro', 'F1-Micro', 'JS', 'Time']
-        print(' '.join('{}: {}'.format(*k) for k in zip(headers, str_stats)))
+        result_str = ''.join('{}: {}\n'.format(*k) for k in zip(headers, str_stats))
+        print(result_str)
+        with open(self.model_path[:-3] + "_test_result.txt", "w") as f:
+            f.write(result_str)
