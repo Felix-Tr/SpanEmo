@@ -37,6 +37,8 @@ class DataClass(Dataset):
             self.bert_tokeniser = AutoTokenizer.from_pretrained("dccuchile/bert-base-spanish-wwm-uncased")
         elif args['--lang'] == 'German':
             self.bert_tokeniser = AutoTokenizer.from_pretrained("dbmdz/bert-base-german-uncased")
+        elif args['--lang'] == 'GermanSentiment':
+            self.bert_tokeniser = AutoTokenizer.from_pretrained("oliverguhr/german-sentiment-bert")
 
         self.inputs, self.lengths, self.label_indices = self.process_data()
 
