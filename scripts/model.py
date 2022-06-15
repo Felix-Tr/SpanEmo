@@ -19,6 +19,8 @@ class BertEncoder(nn.Module):
             self.bert = AutoModel.from_pretrained("dccuchile/bert-base-spanish-wwm-uncased")
         elif lang == 'German':
             self.bert = AutoModel.from_pretrained("dbmdz/bert-base-german-uncased")
+        elif lang == 'GermanSentiment':
+            self.bert = AutoModel.from_pretrained("oliverguhr/german-sentiment-bert")
         self.feature_size = self.bert.config.hidden_size
 
     def forward(self, input_ids):

@@ -3,6 +3,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from sklearn.metrics import f1_score, jaccard_score
 import torch.nn.functional as F
 import numpy as np
+from tqdm import tqdm
 import torch
 import time
 import wandb
@@ -80,15 +81,14 @@ class Trainer(object):
         """
         optimizer, scheduler, step_scheduler_on_batch = self.optimizer(args)
         self.model = self.model.to(device)
-        pbar = master_bar(range(num_epochs))
         headers = ['Train_Loss', 'Val_Loss', 'F1-Macro', 'F1-Micro', 'JS', 'Time']
-        pbar.write(headers, table=True)
-        for epoch in pbar:
+        pbar = tqdm(total=num_epochs*(len(self.train_data_loader) + len(self.val_data_loader)), desc="All Epochs: ")
+        for epoch in tqdm(range(num_epochs)):
             epoch += 1
             start_time = time.time()
             self.model.train()
             overall_training_loss = 0.0
-            for step, batch in enumerate(progress_bar(self.train_data_loader, parent=pbar)):
+            for step, batch in enumerate(self.train_data_loader):
                 loss, num_rows, _, _ = self.model(batch, device)
 
                 if step % 10 == 0:
@@ -102,6 +102,7 @@ class Trainer(object):
                 if step_scheduler_on_batch:
                     scheduler.step()
                 optimizer.zero_grad()
+                pbar.update()
 
             if not step_scheduler_on_batch:
                 scheduler.step()
@@ -125,11 +126,11 @@ class Trainer(object):
                 )
             str_stats.append(format_time(time.time() - start_time))
             print('epoch#: ', epoch)
-            pbar.write(str_stats, table=True)
             self.early_stop(overall_val_loss, self.model)
             if self.early_stop.early_stop:
                 print("Early stopping")
                 break
+        pbar.close()
                 
     def optimizer(self, args):
         """
@@ -166,7 +167,7 @@ class Trainer(object):
         self.model.eval()
         with torch.no_grad():
             index_dict = 0
-            for step, batch in enumerate(progress_bar(self.val_data_loader, parent=pbar, leave=(pbar is not None))):
+            for step, batch in enumerate(self.val_data_loader):
                 loss, num_rows, y_pred, targets = self.model(batch, device)
                 overall_val_loss += loss.item() * num_rows
 
@@ -174,6 +175,7 @@ class Trainer(object):
                 preds_dict['y_true'][current_index: current_index + num_rows, :] = targets
                 preds_dict['y_pred'][current_index: current_index + num_rows, :] = y_pred
                 index_dict += num_rows
+                pbar.update()
 
         overall_val_loss = overall_val_loss / len(self.val_data_loader.dataset)
         return overall_val_loss, preds_dict
@@ -208,7 +210,7 @@ class EvaluateOnTest(object):
         start_time = time.time()
         with torch.no_grad():
             index_dict = 0
-            for step, batch in enumerate(progress_bar(self.test_data_loader, parent=pbar, leave=(pbar is not None))):
+            for step, batch in tqdm(enumerate(self.test_data_loader), total=len(self.test_data_loader)):
                 _, num_rows, y_pred, targets = self.model(batch, device)
                 current_index = index_dict
                 preds_dict['y_true'][current_index: current_index + num_rows, :] = targets
