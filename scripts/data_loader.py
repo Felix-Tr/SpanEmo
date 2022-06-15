@@ -67,7 +67,7 @@ class DataClass(Dataset):
             label_names = ['ira', 'anticip', 'asco', 'miedo', 'alegr', 'amor', 'optimismo',
                            'pesim', 'tristeza', 'sorpresa', 'confianza']
 
-        elif self.args['--lang'] == 'German':
+        elif self.args['--lang'] in ['German', "GermanSentiment"]:
             segment_a = "wut lust horror angst freude liebe zuversicht zweifel traurig aufregung oder vertrauen?"
             label_names = ["wut", "lust", "horror", "angst", "freude", "liebe", "zuversicht",
                            "zweifel", "traurig", "aufregung", "vertrauen"]
