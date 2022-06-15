@@ -7,7 +7,7 @@ from ekphrasis.classes.tokenizer import SocialTokenizer
 from ekphrasis.classes.preprocessor import TextPreProcessor
 
 
-def twitter_preprocessor():
+def twitter_preprocessor(lowercase=True):
     preprocessor = TextPreProcessor(
         normalize=['url', 'email', 'phone', 'user'],
         annotate={"hashtag", "elongated", "allcaps", "repeated", 'emphasis', 'censored'},
@@ -18,7 +18,7 @@ def twitter_preprocessor():
         unpack_hashtags=True,
         unpack_contractions=True,
         spell_correct_elong=False,
-        tokenizer=SocialTokenizer(lowercase=True).tokenize).pre_process_doc
+        tokenizer=SocialTokenizer(lowercase=lowercase).tokenize).pre_process_doc
     return preprocessor
 
 
@@ -73,6 +73,7 @@ class DataClass(Dataset):
                            "zweifel", "traurig", "aufregung", "vertrauen"]
 
         elif self.args['--lang']  == "GermanSentiment":
+            preprocessor = twitter_preprocessor(lowercase=False)
             segment_a = "Wut Lust Horror Angst Freude Liebe Hoffnung Zweifel Trauer Aufregung oder Vertrauen?"
             label_names = ["Wut", "Lust", "Horror", "Angst", "Freude", "Liebe", "Hoffnung",
                            "Zweifel", "Trauer", "Aufregung", "Vertrauen"]
